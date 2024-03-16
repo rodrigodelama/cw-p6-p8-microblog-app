@@ -7,6 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MicroblogApplication {
 
 	public static void main(String[] args) {
+		/* 
+		 * Esta clase arranca el entorno de autoconfiguración que Spring Boot proporciona para la aplicación.
+		 */
 		SpringApplication.run(MicroblogApplication.class, args);
 	}
 }
