@@ -12,6 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import es.uc3m.microblog.model.Message;
 import es.uc3m.microblog.model.User;
 
+//practica 6
+// Nuevas sentencias import:
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import es.uc3m.microblog.model.UserRepository;
+import es.uc3m.microblog.services.UserService;
+
+// Nuevas clases a importar
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+
 @Controller
 @RequestMapping(path = "/")
 public class MainController {
@@ -143,5 +156,56 @@ public class MainController {
         model.addAttribute("user", user3);
         model.addAttribute("messages", messages);
         return "message_view";
+    }
+
+    @GetMapping(path = "/signup")
+    public String signUpForm() {
+        return "signup";
+    }
+
+    //Practica 6
+    /*
+     * Los datos del formulario son mapeados automáticamente por el entorno al objeto User y a la cadena passwordRepeat
+     * que el método recibe como parámetros, gracias a las anotaciones @modelAttribute y RequestParam. Para hacerlo, el
+     * entorno empareja los nombres de los parámetros del formulario con los nombres de los atributos de la clase User
+     * y con el nombre del parámetro passwordRepeat.
+     * 
+     * Las instancias necesarias del repositorio de usuarios y del servicio de usuarios se obtienen del sistema de
+     * inyección de dependencias a través de la anotación @Autowired.
+     * 
+     * Si la dirección de correo electrónico ya está en la base de datos o las dos contraseñas no coinciden, el usuario
+     * es redirigido de nuevo al formulario de registro. Se añade un parámetro a la URL, que se usará en un ejercicio
+     * posterior para proporcionar retroalimentación al usuario.
+     * 
+     * Finalmente, se almacena el usuario en la base de datos usando el servicio de usuarios.
+     */
+    // Nuevos atributos:
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
+
+    // Código alternativo para el método "signup" con mensaje POST:
+    @PostMapping(path = "/signup")
+    public String signUp(@Valid @ModelAttribute("user") User user,
+                        BindingResult bindingResult,
+                        @RequestParam(name = "passwordRepeat") String passwordRepeat) {
+        if (bindingResult.hasErrors()) {
+            return "signup";
+        }
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            return "redirect:signup?duplicate_email";
+        }
+        if (!user.getPassword().equals(passwordRepeat)) {
+            return "redirect:signup?passwords";
+        }
+        userService.register(user);
+        return "redirect:login?registered";
+    }
+
+    @GetMapping(path = "/login")
+    public String loginForm() {
+        return "login";
     }
 }

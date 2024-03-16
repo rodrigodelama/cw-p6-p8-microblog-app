@@ -11,5 +11,6 @@ import es.uc3m.microblog.model.User;
  */
 public interface UserRepository extends CrudRepository<User, Integer> {
     // https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/CrudRepository.html
-
+    
+    User findByEmail(String email);
 }
